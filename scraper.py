@@ -23,6 +23,12 @@ class Enricher:
         }
 
         # positions
+        self.positions = {
+            "search bar": [764, 95],
+            "1st result": [490, 365],
+            "ičo start": [715, 415, 433], # 3rd item alternative y
+            "ičo end": [765, 415, 433],   # 3rd item alternative y
+        }
 
     def getName(self, col: int, row:  int) -> str: 
         return self.sheet.cell(row=row, column=col).value
@@ -35,21 +41,21 @@ class Enricher:
         copyToClipboard(url)
         
         # search name in Cribis
-        pg.moveTo(764, 95)
+        pg.moveTo(self.positions["search bar"][0], self.positions["search bar"][1])
         pg.click()
         pg.hotkey("command", "v")
         pg.press("enter")
         sleep(self.cooldowns["searching"])
 
         # open compnay in Cribis
-        pg.moveTo(490, 365)
+        pg.moveTo(self.positions["1st result"][0], self.positions["1st result"][1])
         pg.click()
 
         # copy IČO
         sleep(self.cooldowns["company data loading"])
-        pg.moveTo(715, 415)
+        pg.moveTo(self.positions["ičo start"][0], self.positions["ičo start"][1])
         pg.mouseDown()
-        pg.moveTo(765, 415)
+        pg.moveTo(self.positions["ičo end"][0], self.positions["ičo end"][1])
         pg.mouseUp()
         copyToClipboard("x") # for no results found err
         pg.hotkey("command", "c")
@@ -57,9 +63,9 @@ class Enricher:
 
         # if name of a company is too long that IČO jumps to 3rd line
         if ico == "Historie": 
-            pg.moveTo(715, 433)
+            pg.moveTo(self.positions["ičo start"][0], self.positions["ičo start"][2])
             pg.mouseDown()
-            pg.moveTo(765, 433)
+            pg.moveTo(self.positions["ičo end"][0], self.positions["ičo end"][2])
             pg.mouseUp()
             pg.hotkey("command", "c")
             ico = readFromClipboard()
