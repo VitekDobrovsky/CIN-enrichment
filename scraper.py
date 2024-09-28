@@ -2,7 +2,7 @@ import openpyxl as opx
 import pyautogui as pg
 from tools import *
 from time import sleep
-
+import pyperclip
 
 class Enricher: 
     def __init__(self, path: str):
@@ -38,7 +38,7 @@ class Enricher:
 
         # copy full search url to clipboard
         url = "https://www3.cribis.cz/search/results?type=bs&q=" + name
-        copyToClipboard(url)
+        pyperclip.copy(url)
         
         # search name in Cribis
         pg.moveTo(self.positions["search bar"][0], self.positions["search bar"][1])
@@ -57,9 +57,9 @@ class Enricher:
         pg.mouseDown()
         pg.moveTo(self.positions["ičo end"][0], self.positions["ičo end"][1])
         pg.mouseUp()
-        copyToClipboard("x") # for no results found err
+        pyperclip.copy("x") # for no results found err
         pg.hotkey("command", "c")
-        ico = readFromClipboard()
+        ico = pyperclip.paste()
 
         # if name of a company is too long that IČO jumps to 3rd line
         if ico == "Historie": 
@@ -68,12 +68,16 @@ class Enricher:
             pg.moveTo(self.positions["ičo end"][0], self.positions["ičo end"][2])
             pg.mouseUp()
             pg.hotkey("command", "c")
-            ico = readFromClipboard()
+            ico = pyperclip.paste()
         
         return ico
 
+    # loop through the sheet again but now try to find it with bs4 (or do this first and then cribis)
+
     def run(self):
-        countDown("click on your browser window! you have ", "s -_-", 5)
+        isReady = input("Did you loged into Cribis? (y/n)")
+        isReady = input("Do you have your browser and terminal window open that they dont overlap? (y/n)")
+        countDown("cool. click on your browser window! you have ", "s -_-", 5)
     
         # sheet 4loop
         row = 2
@@ -107,9 +111,11 @@ class Enricher:
 
         self.workbookObject.save(self.path)
 
-
+def countDown(preMsg: str, postMsg: str, amount: int):
+    for i in range(amount, 0, -1):
+        print(preMsg + str(i) + postMsg, end = '\r')
+        sleep(1)
 
 if __name__ == "__main__":
-    
-
-    Enricher("data/temp.xlsx").run()
+    enricher = Enricher("data/temp.xlsx")
+    enricher.run()
