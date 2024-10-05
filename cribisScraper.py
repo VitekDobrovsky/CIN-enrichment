@@ -3,9 +3,9 @@ import pyautogui as pg
 from time import sleep
 import pyperclip
 
-# get ico from cribis database => cribis's api deos not work (.` _ `.)
+# name => ičo
 
-class Cribicher: 
+class CribisScraper: 
     def __init__(self, path: str, nameCol: int, icoCol: int):
         self.path = path
 
@@ -18,9 +18,8 @@ class Cribicher:
         # cooldowns
         self.cooldowns = {
             "getIco iteration": 1,
-            "searching": 3.5,
-            "company data loading": 3,
-            "saving cooldown": 5
+            "company data loading": 2,
+            "saving cooldown": 2
         }
 
         # positions
@@ -28,7 +27,7 @@ class Cribicher:
             "search bar": [764, 95],
             "1st result": [490, 365],
             "ičo start": [715, 415, 433], # 3rd item alternative y
-            "ičo end": [765, 415, 433],   # 3rd item alternative y
+            "ičo end": [790, 415, 433],   # 3rd item alternative y
         }
 
     def getName(self, col: int, row:  int) -> str: 
@@ -47,40 +46,53 @@ class Cribicher:
         # copy full search url to clipboard
         url = "https://www3.cribis.cz/search/results?type=bs&q=" + name
         pyperclip.copy(url)
+        print(name)
         
         # search name in Cribis
         pg.moveTo(self.positions["search bar"][0], self.positions["search bar"][1])
         pg.click()
         pg.hotkey("command", "v")
         pg.press("enter")
-        sleep(self.cooldowns["searching"])
-
         # open compnay in Cribis
-        pg.moveTo(self.positions["1st result"][0], self.positions["1st result"][1])
+        pg.moveTo(1000,1000)
+        pg.click()
+        correct = input(":")
+        if correct == "":
+            pg.moveTo(self.positions["1st result"][0], self.positions["1st result"][1])
+        elif correct == "p":
+            ico = "x"
+        else:
+            sleep(2)
+
+        sleep(1)
+
         pg.click()
 
-        # copy IČO
-        sleep(self.cooldowns["company data loading"])
-        pg.moveTo(self.positions["ičo start"][0], self.positions["ičo start"][1])
-        pg.mouseDown()
-        pg.moveTo(self.positions["ičo end"][0], self.positions["ičo end"][1])
-        pg.mouseUp()
-        pyperclip.copy("x") # for no results found err
-        pg.hotkey("command", "c")
-        ico = pyperclip.paste()
+        if correct != "p":
+            pg.click()
 
-        # if name of a company is too long that IČO jumps to 3rd line
-        if ico == "Historie": 
-            pg.moveTo(self.positions["ičo start"][0], self.positions["ičo start"][2])
+            # copy IČO
+            sleep(self.cooldowns["company data loading"])
+            pg.moveTo(self.positions["ičo start"][0], self.positions["ičo start"][1])
             pg.mouseDown()
-            pg.moveTo(self.positions["ičo end"][0], self.positions["ičo end"][2])
+            pg.moveTo(self.positions["ičo end"][0], self.positions["ičo end"][1])
             pg.mouseUp()
+            pyperclip.copy("x") # for no results found err
             pg.hotkey("command", "c")
             ico = pyperclip.paste()
+
+            # if name of a company is too long that IČO jumps to 3rd line
+            if ico == "Historie": 
+                pg.moveTo(self.positions["ičo start"][0], self.positions["ičo start"][2])
+                pg.mouseDown()
+                pg.moveTo(self.positions["ičo end"][0], self.positions["ičo end"][2])
+                pg.mouseUp()
+                pg.hotkey("command", "c")
+                ico = pyperclip.paste()
         
         return ico
 
-    def runCribisEnrichment(self):
+    def run(self):
         # isReady = input("Did you loged into Cribis? (y/n)")
         # isReady = input("Do you have your browser and terminal window open that they dont overlap? (y/n)")
         countDown("click on your browser window! u have ", "s -_-", 5)
@@ -109,7 +121,6 @@ class Cribicher:
             if row % 5 == 0:
                 self.workbookObject.save(self.path)
                 print(f"saved! - currently on row {row} - {totalRows - row} remaining :)")
-                countDown("cooling down :O ", "s", self.cooldowns["saving cooldown"])
 
 
             row += 1
@@ -119,8 +130,9 @@ class Cribicher:
 
 def countDown(preMsg: str, postMsg: str, amount: int):
     for i in range(amount, 0, -1):
-        print(preMsg + str(i) + postMsg, end = '\r')
+        print(preMsg + str(i) + postMsg)
         sleep(1)
 
+
 if __name__ == "__main__":
-    enricher = Cribicher("data/temp.xlsx", 1, 3)
+    CribisScraper("data/temp.xlsx", 1, 2).run()
