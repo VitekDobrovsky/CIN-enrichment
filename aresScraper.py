@@ -39,50 +39,53 @@ def getInfo(ico: str):
     
     return info
 
+def fillInfo():
+    workbookObject = opx.load_workbook("./data/name.xlsx")
+    sheet = workbookObject.active
 
+    for i, row in enumerate(sheet):
+        icoCell = sheet.cell(row=i + 1, column=3)
+        yearCell = sheet.cell(row=i + 1, column=5)
+        streetCell = sheet.cell(row=i + 1, column=6)
+        cityCell = sheet.cell(row=i + 1, column=7)
+        stateCell = sheet.cell(row=i + 1, column=8)
+        countryCell = sheet.cell(row=i + 1, column=9)
+        pscCell = sheet.cell(row=i + 1, column=10)
 
-
-
-workbookObject = opx.load_workbook("./data/name.xlsx")
-sheet = workbookObject.active
-
-for i, row in enumerate(sheet):
-    icoCell = sheet.cell(row=i + 1, column=3)
-    yearCell = sheet.cell(row=i + 1, column=5)
-    streetCell = sheet.cell(row=i + 1, column=6)
-    cityCell = sheet.cell(row=i + 1, column=7)
-    stateCell = sheet.cell(row=i + 1, column=8)
-    countryCell = sheet.cell(row=i + 1, column=9)
-    pscCell = sheet.cell(row=i + 1, column=10)
-
-    
-    if not icoCell.value or i == 0:
-        continue
-
-    try:
-        info = getInfo(icoCell.value)
-        print(info)
-    except:
-        continue
-
-
-    yearCell.value = info["year"]  
-    streetCell.value = info["street"]
-    cityCell.value = info["city"]
-    stateCell.value = info["state"]
-    pscCell.value = info["psc"]
-    countryCell.value = "Česká republika"
-
-
-
-    print(f"{i}", end="\r")
-    if i % 500 == 0:
-        workbookObject.save("./data/info.xlsx")
-
-
-    sleep(0.3) 
-
-
-
-workbookObject.save("./data/info.xlsx")
         
+        if not icoCell.value or i == 0:
+            continue
+
+        try:
+            info = getInfo(icoCell.value)
+            print(info)
+        except:
+            continue
+
+
+        yearCell.value = info["year"]  
+        streetCell.value = info["street"]
+        cityCell.value = info["city"]
+        stateCell.value = info["state"]
+        pscCell.value = info["psc"]
+        countryCell.value = "Česká republika"
+
+
+
+        print(f"{i}", end="\r")
+        if i % 500 == 0:
+            workbookObject.save("./data/info.xlsx")
+
+
+        sleep(0.3) 
+
+
+
+    workbookObject.save("./data/info.xlsx")
+
+
+while True:
+    ico = input("ičo -> ")
+    response = requests.get("https://ares.gov.cz/ekonomicke-subjekty-v-be/rest/ekonomicke-subjekty/" + str(ico))
+    json = response.json()
+    print(json)
