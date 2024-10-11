@@ -30,6 +30,7 @@ def getInfo(ico: str):
     response = requests.get("https://ares.gov.cz/ekonomicke-subjekty-v-be/rest/ekonomicke-subjekty/" + str(ico))
     json = response.json()
     info = {
+        "name": json["obchodniJmeno"],
         "year": json["datumVzniku"],
         "street": json["adresaDorucovaci"]["radekAdresy1"],
         "city": json["sidlo"]["nazevObce"],
@@ -40,17 +41,18 @@ def getInfo(ico: str):
     return info
 
 def fillInfo():
-    workbookObject = opx.load_workbook("./data/name.xlsx")
+    workbookObject = opx.load_workbook("./data/ico.xlsx")
     sheet = workbookObject.active
 
     for i, row in enumerate(sheet):
-        icoCell = sheet.cell(row=i + 1, column=3)
-        yearCell = sheet.cell(row=i + 1, column=5)
-        streetCell = sheet.cell(row=i + 1, column=6)
-        cityCell = sheet.cell(row=i + 1, column=7)
-        stateCell = sheet.cell(row=i + 1, column=8)
-        countryCell = sheet.cell(row=i + 1, column=9)
-        pscCell = sheet.cell(row=i + 1, column=10)
+        icoCell = sheet.cell(row=i + 1, column=2)
+        legalNameCell = sheet.cell(row=i + 1, column=3)
+        yearCell = sheet.cell(row=i + 1, column=4)
+        streetCell = sheet.cell(row=i + 1, column=5)
+        cityCell = sheet.cell(row=i + 1, column=6)
+        stateCell = sheet.cell(row=i + 1, column=7)
+        countryCell = sheet.cell(row=i + 1, column=8)
+        pscCell = sheet.cell(row=i + 1, column=9)
 
         
         if not icoCell.value or i == 0:
@@ -62,7 +64,7 @@ def fillInfo():
         except:
             continue
 
-
+        legalNameCell.value = info["name"]
         yearCell.value = info["year"]  
         streetCell.value = info["street"]
         cityCell.value = info["city"]
@@ -72,20 +74,16 @@ def fillInfo():
 
 
 
-        print(f"{i}", end="\r")
         if i % 500 == 0:
-            workbookObject.save("./data/info.xlsx")
+            workbookObject.save("./data/ares.xlsx")
 
 
         sleep(0.3) 
 
 
 
-    workbookObject.save("./data/info.xlsx")
+    workbookObject.save("./data/ares.xlsx")
 
 
-while True:
-    ico = input("ičo -> ")
-    response = requests.get("https://ares.gov.cz/ekonomicke-subjekty-v-be/rest/ekonomicke-subjekty/" + str(ico))
-    json = response.json()
-    print(json)
+
+fillInfo()

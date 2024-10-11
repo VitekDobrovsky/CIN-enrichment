@@ -2,6 +2,7 @@ import openpyxl as opx
 import pyautogui as pg
 from time import sleep
 import pyperclip
+from support import countDown
 
 # name => ičo
 
@@ -127,11 +128,6 @@ class CribisScraper:
         
 
         self.workbookObject.save(self.path)
-
-def countDown(preMsg: str, postMsg: str, amount: int):
-    for i in range(amount, 0, -1):
-        print(preMsg + str(i) + postMsg)
-        sleep(1)
 
 
 if __name__ == "__main__":
